@@ -1,6 +1,13 @@
-DEF STATF_OAM EQU  %00000010 ; OAM-RAM is used by system
+/*******************************************************************************
+ * Apache License, Version 2.0
+ * Copyright (c) 2025 chciken/Niko
+ ******************************************************************************/
+
+DEF STATF_OAM EQU  %00000010
 DEF FONT_SIZE EQU 16*41
+DEF rLCDC EQU $FF40
 DEF rSTAT EQU $FF41
+DEF rLY EQU $FF44
 DEF rBGP EQU $FF47
 DEF rP1 EQU $FF00
 DEF rAUDVOL EQU $FF24
@@ -49,7 +56,7 @@ def LimitLengthEnable EQU $c217
 
 def SIZE_FONT_DATA EQU 41 ; Size in tiles.
 def SIZE_LOGO_DATA EQU 80 ; Size in tiles.
-def NUM_PRESETS EQU 8
+def NUM_PRESETS EQU 10
 
 def MASK_BUTTON_A EQU %1
 def MASK_BUTTON_B EQU %10
@@ -150,7 +157,8 @@ Start::
   ld a, 8
   ld [LimitEnvelopePeriod], a
   ld [LimitDivisor], a
-
+  call TurnOffLcdc
+  call InitTileMap
   ld a, %11100100
   ldh [rBGP], a
   ld a, SIZE_FONT_DATA
@@ -174,6 +182,8 @@ Start::
   add hl, de
   dec c
   jr nz, :--
+  call DrawRegisters
+  call TurnOnLcdc
   call RedrawScreen
 
 .Loop:
@@ -210,16 +220,7 @@ Start::
 
   jp .Loop
 
-RedrawScreen:
-  ld hl, $9880
-  ld a, $ff
-
-ZeroInitTileMap::
-  ld [hl+], a
-  ld a, h
-  cp $9b
-  jr nz, ZeroInitTileMap
-
+DrawRegisters::
   TilemapLow de, REG_X_ALIGN, Y_ALIGN
   ld hl, LengthString
   call DrawString
@@ -255,6 +256,24 @@ ZeroInitTileMap::
   TilemapLow de, REG_X_ALIGN, (Y_ALIGN + 8)
   ld hl, PlayString
   call DrawString
+
+  ret
+
+RedrawScreen:
+: ldh a, [rLY]
+  cp 144
+  jr nz, :-
+
+  ld hl, $98c1
+  ld b, NUM_REGS
+: ld a, $2f
+  ld [hl], a
+  ld de, $20
+  add hl, de
+  dec b
+  ld a, b
+  or a
+  jr nz, :-
 
   TilemapLow de, 7, 16
   ld hl, PresetString
@@ -622,6 +641,29 @@ BinToBcd6Bit:
     add b
     ret
 
+TurnOffLcdc::
+  ld a, [rLCDC]
+  ld b, %01111111
+  and a, b
+  ld [rLCDC], a
+  ret
+
+TurnOnLcdc::
+  ld a, [rLCDC]
+  ld b, %10000000
+  or a, b
+  ld [rLCDC], a
+  ret
+
+InitTileMap::
+  ld hl, $9800
+: ld a, $2f
+  ld [hl+], a
+  ld a, h
+  cp $9c
+  jr nz, :-
+  ret
+
 FontData::
   INCBIN "font.2bpp"
 
@@ -673,6 +715,8 @@ PresetPtrs:
   dw Preset5
   dw Preset6
   dw Preset7
+  dw Preset8
+  dw Preset9
 
 Preset0::
   db 0  ; init volume
@@ -706,8 +750,30 @@ Preset2::
   db 1   ; length enable
   db 41  ; length
 
-; Fade-in snare.
+; Fading in waves from The Legend Of Zelda: Link's Awakening.
 Preset3::
+  db 0   ; init volume
+  db 1   ; envelope mode
+  db 7   ; envelope period
+  db 3   ; clock shift
+  db 0   ; LFSR width
+  db 0   ; divisor
+  db 0   ; length enable
+  db 0   ; length
+
+; Fading out waves from The Legend Of Zelda Link's: Awakening.
+Preset4::
+  db 6   ; init volume
+  db 0   ; envelope mode
+  db 7   ; envelope period
+  db 0   ; clock shift
+  db 0   ; LFSR width
+  db 3   ; divisor
+  db 0   ; length enable
+  db 0   ; length
+
+; Fade-in snare.
+Preset5::
   db 0   ; init volume
   db 1   ; envelope mode
   db 1   ; envelope period
@@ -718,7 +784,7 @@ Preset3::
   db 1   ; length
 
 ; Bombshell Koopas (Nokobon) explosion from Super Mario Land.
-Preset4::
+Preset6::
   db 15  ; init volume
   db 0   ; envelope mode
   db 4   ; envelope period
@@ -729,7 +795,7 @@ Preset4::
   db 0   ; length
 
 ; Explosion.
-Preset5::
+Preset7::
   db 15  ; init volume
   db 0   ; envelope mode
   db 3   ; envelope period
@@ -740,7 +806,7 @@ Preset5::
   db 1   ; length
 
 ; Chiptune-like Explosion.
-Preset6::
+Preset8::
   db 15   ; init volume
   db 0   ; envelope mode
   db 5   ; envelope period
@@ -751,7 +817,7 @@ Preset6::
   db 1   ; length
 
 ; First noise part of defeating a fight fly from Super Mario Land.
-Preset7::
+Preset9::
   db 2   ; init volume
   db 1   ; envelope mode
   db 4   ; envelope period
