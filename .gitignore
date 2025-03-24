@@ -2,3 +2,5 @@
 *.map
 *.o
 *.sym
+
+src/noise_test.gb

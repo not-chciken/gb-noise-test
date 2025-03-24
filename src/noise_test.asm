@@ -3,22 +3,20 @@
  * Copyright (c) 2025 chciken/Niko
  ******************************************************************************/
 
-DEF STATF_OAM EQU  %00000010
-DEF FONT_SIZE EQU 16*41
-DEF rLCDC EQU $FF40
-DEF rSTAT EQU $FF41
-DEF rLY EQU $FF44
-DEF rBGP EQU $FF47
 DEF rP1 EQU $FF00
-DEF rAUDVOL EQU $FF24
-DEF rAUDTERM EQU $FF25
-DEF rAUDENA EQU $FF26
-
 DEF rNR41 EQU $FF20
 DEF rNR42 EQU $FF21
 DEF rNR43 EQU $FF22
 DEF rNR44 EQU $FF23
+DEF rAUDVOL EQU $FF24
+DEF rAUDTERM EQU $FF25
+DEF rAUDENA EQU $FF26
+DEF rLCDC EQU $FF40
+DEF rSTAT EQU $FF41
+DEF rLY EQU $FF44
+DEF rBGP EQU $FF47
 
+DEF STATF_OAM EQU  %00000010
 def TileDataLow EQU $8000
 def FontDataVram EQU $8000
 def LogoDataVram EQU $8300
@@ -26,7 +24,21 @@ def CHAR_OFFSET EQU $37
 def REG_X_ALIGN EQU 2
 def VALUE_X_ALIGN EQU 17
 def Y_ALIGN EQU 6
-def NUM_REGS EQU 9
+def NUM_OPTS EQU 9
+
+def SIZE_FONT_DATA EQU 41 ; Size in tiles.
+def SIZE_LOGO_DATA EQU 80 ; Size in tiles.
+def NUM_PRESETS EQU 10
+def POINTER_INDEX EQU $28
+
+def MASK_BUTTON_A EQU %1
+def MASK_BUTTON_B EQU %10
+def MASK_BUTTON_SELECT EQU %100
+def MASK_BUTTON_START EQU %1000
+def MASK_BUTTON_RIGHT EQU %10000
+def MASK_BUTTON_LEFT EQU %100000
+def MASK_BUTTON_UP EQU %1000000
+def MASK_BUTTON_DOWN EQU %10000000
 
 def JoyPadData EQU $c100
 def JoyPadNewPresses EQU $c101
@@ -54,19 +66,6 @@ def LimitClockShift EQU $c215
 def LimitDivisor EQU $c216
 def LimitLengthEnable EQU $c217
 
-def SIZE_FONT_DATA EQU 41 ; Size in tiles.
-def SIZE_LOGO_DATA EQU 80 ; Size in tiles.
-def NUM_PRESETS EQU 10
-
-def MASK_BUTTON_A EQU %1
-def MASK_BUTTON_B EQU %10
-def MASK_BUTTON_SELECT EQU %100
-def MASK_BUTTON_START EQU %1000
-def MASK_BUTTON_RIGHT EQU %10000
-def MASK_BUTTON_LEFT EQU %100000
-def MASK_BUTTON_UP EQU %1000000
-def MASK_BUTTON_DOWN EQU %10000000
-
 charmap "0", $37
 charmap "1", $38
 charmap "2", $39
@@ -83,8 +82,6 @@ charmap "9", $40
 MACRO TilemapLow
     ld \1, $9800 + \3 * 32 + \2
 ENDM
-
-def POINTER_INDEX EQU $28
 
 SECTION "ROM Bank 0 $100", ROM0[$100]
 
@@ -131,7 +128,7 @@ Start::
   ldh [rAUDENA], a            ; Turn on sound.
   ld a, $ff
   ldh [rAUDVOL], a            ; Full volume, both channels on.
-  ldh [rAUDTERM], a           ; All sounds to all terminal.
+  ldh [rAUDTERM], a           ; All sounds to all terminals.
   xor a
   ld [JoyPadData], a
   ld [JoyPadNewPresses], a
@@ -260,12 +257,12 @@ DrawRegisters::
   ret
 
 RedrawScreen:
-: ldh a, [rLY]
+: ldh a, [rLY]                ; Wait for V-blank perio.d
   cp 144
   jr nz, :-
 
   ld hl, $98c1
-  ld b, NUM_REGS
+  ld b, NUM_OPTS
 : ld a, $2f
   ld [hl], a
   ld de, $20
@@ -351,7 +348,7 @@ RedrawScreen:
 PressedDownButton::
   ld a, [CursorIndex]
   ld b, a
-  sub a, NUM_REGS - 1
+  sub a, NUM_OPTS - 1
   jr nz, :+
   ld b, -1
 : inc b
@@ -365,7 +362,7 @@ PressedUpButton::
   ld a, [CursorIndex]
   or a
   jr nz, :+
-  ld a, NUM_REGS
+  ld a, NUM_OPTS
 : dec a
   ld [CursorIndex], a
   call RedrawScreen
@@ -421,7 +418,7 @@ PressedLeftButton::
 PressedAButton::
   call RedrawScreen
   ld a, [CursorIndex]
-  cp NUM_REGS - 1
+  cp NUM_OPTS - 1
   ret nz
   ld a, [RegLength]
   ldh [rNR41], a
@@ -627,19 +624,19 @@ ReadJoyPad:
 
 ; Input in "a". Result in "a". Maximum of 6 bits.
 BinToBcd6Bit:
-    and $3f
-    ld c, a
-    ld b, 0
+  and $3f
+  ld c, a
+  ld b, 0
 .LoopSubtractTen:
-    cp 10
-    jr c, .Done
-    sub 10
-    inc b
-    jr .LoopSubtractTen
+  cp 10
+  jr c, .Done
+  sub 10
+  inc b
+  jr .LoopSubtractTen
 .Done:
-    swap b
-    add b
-    ret
+  swap b
+  add b
+  ret
 
 TurnOffLcdc::
   ld a, [rLCDC]
@@ -816,7 +813,7 @@ Preset8::
   db 0   ; length enable
   db 1   ; length
 
-; First noise part of defeating a fight fly from Super Mario Land.
+; First noise part of defeating a Fighter Fly from Super Mario Land.
 Preset9::
   db 2   ; init volume
   db 1   ; envelope mode

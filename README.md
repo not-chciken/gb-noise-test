@@ -2,18 +2,18 @@
 
 Implementing the Game Boy's Audio Processing Unit (APU) is one of the most challenging parts when developing a Game Boy emulator.
 Particularly, because debugging is hard and you may not want to create an exact replica, but something that simulates fast and sounds good enough.
-The _Game Boy Noise Test_ supports you in this processes, allowing you to test features of the noise channel and evaluate their acoustical impressions.
+The _Game Boy Noise Test_ supports you in this process, allowing you to test features of the noise channel and evaluate their acoustical impressions.
 
 ## Usage
 
 Open `noise_test.gb` with your Game Boy emulator.
-After the bootup you arrive at the following user interface:
+After the boot, you arrive at the following user interface:
 
 <img id="screenshot" src="readme_assets/screenshot.png"
 alt="Screenshot of Game Boy Noise test"
 width="30%">
 
-It allows you to modify all noise-channel related settings:
+It allows you to modify all noise-channel-related settings:
 
 | Name   | Address | Bits        | Function                                             |
 |--------|---------|-------------|------------------------------------------------------|
@@ -38,3 +38,8 @@ By pressing SELECT you can also switch between the following predefined settings
 | 7      | Explosion                                                         |
 | 8      | Chiptune-like Explosion                                           |
 | 9      | First noise part of defeating a Fighter Fly from Super Mario Land |
+
+## Building
+
+In `src/noise_test.asm` you find the source code of the Game Boy Noise Test.
+Assuming [RBGDS](https://github.com/gbdev/rgbds) is installed, it can be built with a simple `make`.
