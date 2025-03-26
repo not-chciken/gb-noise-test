@@ -321,6 +321,7 @@ RedrawScreen:
   ld c, a
   and a, $0f
   ld [hl-], a
+  ld a, c
   swap a
   and a, $0f
   ld [hl], a
