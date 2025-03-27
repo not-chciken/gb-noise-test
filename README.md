@@ -26,18 +26,20 @@ Values can be changed by selecting them and pressing left or right on the D-pad.
 Once content with the configuration, move the cursor to "PLAY" and press A.
 By pressing SELECT you can also switch between the following predefined settings:
 
-| Preset | Description                                                       |
-|--------|-------------------------------------------------------------------|
-| 0      | Empty preset                                                      |
-| 1      | Hi-hat from Tetris                                                |
-| 2      | Snare from Tetris                                                 |
-| 3      | Fading in wave from The Legend Of Zelda: Link's Awakening         |
-| 4      | Fading out wave from The Legend Of Zelda: Link's Awakening        |
-| 5      | Fading in snare                                                   |
-| 6      | Bombshell Koopa (Nokobon) explosion from Super Mario Land         |
-| 7      | Explosion                                                         |
-| 8      | Chiptune-like Explosion                                           |
-| 9      | First noise part of defeating a Fighter Fly from Super Mario Land |
+| Preset | Description                                                       | Golden Reference                                           |
+|--------|-------------------------------------------------------------------|------------------------------------------------------------|
+| 0      | Empty preset                                                      | -                                                          |
+| 1      | Hi-hat from Tetris                                                | <audio controls src="readme_assets/preset1.flac"></audio>  |
+| 2      | Snare from Tetris                                                 | <audio controls src="readme_assets/preset2.flac"></audio>  |
+| 3      | Fading in wave from The Legend Of Zelda: Link's Awakening         | <audio controls src="readme_assets/preset3.flac"></audio>  |
+| 4      | Fading out wave from The Legend Of Zelda: Link's Awakening        | <audio controls src="readme_assets/preset4.flac"></audio>  |
+| 5      | Fading in snare                                                   | <audio controls src="readme_assets/preset5.flac"></audio>  |
+| 6      | Bombshell Koopa (Nokobon) explosion from Super Mario Land         | <audio controls src="readme_assets/preset6.flac"></audio>  |
+| 7      | Explosion                                                         | <audio controls src="readme_assets/preset7.flac"></audio>  |
+| 8      | Chiptune-like Explosion                                           | <audio controls src="readme_assets/preset8.flac"></audio>  |
+| 9      | First noise part of defeating a Fighter Fly from Super Mario Land | <audio controls src="readme_assets/preset9.flac"></audio>  |
+
+In the table are also golden reference audio samples that were recorded from the original DMG-01 Game Boy.
 
 ## Building
 
