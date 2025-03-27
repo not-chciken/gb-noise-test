@@ -40,6 +40,7 @@ By pressing SELECT you can also switch between the following predefined settings
 | 9      | First noise part of defeating a Fighter Fly from Super Mario Land | <audio controls src="readme_assets/preset9.flac"></audio>  |
 
 In the table are also golden reference audio samples that were recorded from the original DMG-01 Game Boy.
+_Note: As of yet Github Markdown does not support the HTML audio element. See `readme_assets` to get the golden reference samples._
 
 ## Building
 
